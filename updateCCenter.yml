@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  become: true
+  tasks:
+  - name: "Upgrade all installed packages using DNF module"
+    ansible.builtin.dnf:
+      name: "*"
+      state: latest
+#      register: dnf_update_status
