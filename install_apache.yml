@@ -1,0 +1,14 @@
+---
+
+- hosts: all
+  tasks:
+
+  - name: Update repository index
+    ansible.builtin.dnf:
+      update_cache: yes
+
+  - name: install apache package
+    ansible.builtin.dnf:
+      name: httpd
+      state: latest
+
