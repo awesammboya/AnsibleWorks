@@ -1,0 +1,18 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+  - name: Install unzip for extracting tar/zip/.gz files
+    package:
+      name: unzip
+
+  - name: Install terraform
+    tags: httpd
+    unarchive:
+      src: https://releases.hashicorp.com/terraform/1.8.0-alpha20240228/terraform_1.8.0-alpha20240228_linux_amd64.zip
+      dest: /usr/local/bin
+      remote_src: yes
+      mode: 755
+      owner: root
+      group: root

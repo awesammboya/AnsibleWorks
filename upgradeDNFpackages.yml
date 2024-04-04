@@ -2,8 +2,19 @@
 - hosts: all
   become: true
   tasks:
-  - name: "Upgrade all installed packages using DNF module"
+  - name: "Upgrade all installed packages using DNF module for Dnf hosts"
     ansible.builtin.dnf:
       name: "*"
       state: latest
-#      register: dnf_update_status
+    when: ansible_distribution == "Fedora"
+
+#  - name: Update repository index for the Ubuntu host
+#    ansible.builtin.apt:
+#      update_cache: yes
+#    when: ansible_distribution == "Ubuntu"
+  - name: Update all packages to their latest version and the cache too in Ubuntu host
+    ansible.builtin.apt:
+      name: "*"
+      state: latest
+      update_cache: yes
+    when: ansible_distribution == "Ubuntu"
