@@ -1,0 +1,26 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+  - name: start httpd service after upgrade
+    service:
+      name: httpd
+      state: started
+      enabled: yes
+    when: ansible_distribution == "Fedora"
+
+  - name: Change email address for the sysAdmin
+    lineinfile:
+      path: /etc/httpd/conf/httpd.conf
+      regexp: 'ServerAdmin'
+      line: ServerAdmin prince@GemOremo.net
+    when: ansible_distribution == "Fedora"
+    register: httpd
+
+  - name: Restart httpd
+    service:
+      name: httpd
+      stated: restarted
+    when: httpd.changed
+

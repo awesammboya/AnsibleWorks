@@ -1,0 +1,22 @@
+---
+- hosts: localhost
+  become: true
+
+  tasks:
+  - name: Create simone user
+    user:
+      name: simone
+      group: root
+
+  - name: Add sshkey for simone
+    authorized_key:
+      user: simone
+      key: "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCt4gL010pny9k/r5gnAjwc0zntw6aqXNi9sXcDwGW+gjyjrbsB6DzdT+jDM6Dx937cSdxZeCPA0M+bOrHM4zrvEzBkw8NbaNiKhO2Ks3Yo3euWJSJ9N6AAl8KfUak27/rwdkmwniQco2F0dnCUbZZgPrX+FUWmeuicM75h/Y7B2XwDCZEu5cwz/MJbZ+a+8oEamj3iQwqa6ShiVFyTu/29YcEUg0kChOFFTjnUp/SEfCUAEkWyVUYvQ30Omk5qZrEQ9Vwfq9zwC85Mp3DZqd8J/Ia79Moqmw9sLS2zSYh6LWDH/3nUsOn+6d6e3qGlF948pl+ka9SQ9KZNabn1q2KkBoRWV8cuanK4TLZVVlx5FZxR2qLyfzKR1AJa+22SQENRVyZVqv9iy/q2AOPedemjULyEe0d7peIchOke96Kfiht3NU+2Zy2/sZWMJKaISSQEIA4spaiGeuMFfULDTZg4KFOJzPKMZQ9O2VBYoDZPu/hFzbdZxQUCMo5WxMegHRs= qamboya@Blessingz"
+
+  - name: Add sudoers file for simone
+    copy:
+      src: sudoer_simone
+      dest: /etc/sudoers.d/simone
+      owner: root
+      group: root
+      mode: 0440
