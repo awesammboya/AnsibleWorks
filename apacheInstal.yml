@@ -1,0 +1,16 @@
+- name: Install Apache on RHEL
+  hosts: localhost
+  become: yes
+  tasks:
+    - name: Ensure Apache package is installed
+      yum:
+        name: httpd
+        state: present
+    - name: Start Apache service
+      service:
+        name: httpd
+        state: started
+    - name: Enable Apache service at boot
+      service:
+        name: httpd
+        enabled: true

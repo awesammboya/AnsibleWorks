@@ -1,0 +1,53 @@
+---
+- name: Upgrade Fedora to the Latest Version
+  hosts: localhost
+  become: yes
+  vars:
+    target_version: "40" # setting the target Fedora version here.
+
+  tasks:
+    # First, update the system.
+    - name: Ensure system is up-to-date
+      dnf:
+        name: '*'
+        state: latest
+    
+    # Install the plugin that performs system upgrade
+    - name: Install dnf-plugin-system-upgrade
+      dnf:
+        name: dnf-plugin-system-upgrade
+        state: present
+
+    # Download the necessary package for the upgrade
+    - name: Start system upgrade process
+      command: >
+        dnf system-upgrade download --releasever={{ target_version }}
+      register: upgrade_output
+      args:
+        warn: yes
+      failed_when: "'Error' in upgrade_output.stderr"
+
+    # Reboot the system if the upgrade process was successful
+    - name: Reboot the system to apply the upgrade
+      reboot:
+        reboot_timeout: 600
+      when: upgrade_output.stdout is search('Upgrade completed')
+
+    - name: Upgrade system
+      command: >
+        dnf system-upgrade reboot
+      when: upgrade_output.stdout is search('Upgrade completed')
+      register: final_upgrade
+      args:
+        warn: no
+      failed_when: "'Error' in final_upgrade.stderr"
+
+    # Verify
+    - name: Verify Fedora version after upgrade
+      command: >
+        rpm -q fedora-release
+      register: fedora_version
+
+    - name: Display Fedora version
+      debug:
+        msg: "Fedora version after upgrade: {{ fedora_version.stdout }}"

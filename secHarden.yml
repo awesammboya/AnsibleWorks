@@ -1,0 +1,82 @@
+---
+- name: A playbook for security hardening of Linux hosts
+  hosts: all
+
+  tasks:
+    - name: Ensure system is up-to-date
+      dnf: # Use dnf or yum to update all the packages to the latest versions.
+        name: '*'
+        state: latest
+      when: ansible_os_family == 'Fedora'
+
+    - name: Disable unused services
+      systemd: # This module can be used to disable and stop unnecessary services e.g telnet.
+        name: "{{ item }}"
+        enabled: no
+        state: stopped
+      with_items:
+        - telnet
+        - ftp
+        - rsh
+        - rlogin
+      when: ansible_os_family == 'Fedora'
+
+    - name: Configure firewall
+      firewalld: # firewalld module enable firewall rules for ssh, http, and https services.
+        service: "{{ item }}"
+        state: enabled
+        immediate: yes
+      with_items:
+        - ssh
+        - http
+        - https
+      when: ansible_os_family == 'Fedora'
+
+    - name: Set secure permissions on sensitive files
+      file: # Using file module to secure permission on sensitive files.
+        path: "{{ item.path }}"
+        owner: root
+        group: root
+        mode: '0600'
+      with_items:
+        - { path: '/etc/shadow' }
+        - { path: '/etc/gshadow' }
+      when: ansible_os_family == 'Fedora'
+
+    - name: Ensure SELinux is in enforcing mode
+      selinux:
+        policy: targeted
+        state: enforcing
+      when: ansible_os_family == 'Fedora'
+
+    - name: Enable auditd service
+      service: # Use service module to start and enable auditd for auditing service events
+        name: auditd
+        state: started
+        enabled: yes
+      when: ansible_os_family == 'Fedora'
+
+    - name: Ensure password complexity requirements are enforced
+      pam_passwdqc:
+        min: 12
+        max: 16
+        minclass: 4
+        maxrepeat: 2
+      when: ansible_os_family == 'Fedora'
+
+    - name: Ensure SSH server configuration is hardened
+      template: # Deploy a secure sshd_config file and restart ssh daemon if the config changes.
+        src: sshd_config.j2
+        dest: /etc/ssh/sshd_config
+        owner: root
+        group: root
+        mode: '0600'
+      notify:
+        - restart sshd
+      when: ansible_os_family == 'Fedora'
+
+  handlers:
+    - name: restart sshd
+      service:
+        name: sshd
+        state: restarted

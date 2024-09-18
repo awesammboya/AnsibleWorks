@@ -1,0 +1,19 @@
+- name: Upgrade Fedora to latest version
+  hosts: localhost
+  gather_facts: yes
+  tasks:
+    - name: Update dnf and its metadata
+      become: yes
+      dnf:
+        name: "*"
+        state: latest
+    - name: Upgrade system
+      become: yes
+      dnf:
+        name: "*"
+        state: latest
+    - name: Reboot system
+      become: yes
+      command: >
+        dnf system-upgrade reboot
+      delegate_to: "{{ inventory_hostname }}"
